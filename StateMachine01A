@@ -1,0 +1,204 @@
+//state machine stuff
+enum State_enum {ON, OFF, RUN, SLEEP, DIAGNOSTIC};
+// enum Sensors_enum {NONE, SENSOR_RIGHT, SENSOR_LEFT, BOTH};
+//void state_machine_run(switch1, switch1, switch3);
+void on();
+void off();
+void run();
+void sleep();
+void diagnostic();
+uint8_t read_IR();
+uint8_t state = OFF;
+bool switch_1_pressed();
+bool switch1;
+bool switch2;
+bool switch3;
+
+
+//not state machine stuff
+int RED_PIN = 13;
+int GREEN_PIN = 12;
+int BLUE_PIN = 11;
+int SWITCH1 = 7;
+int SWITCH2 = 6;
+int SWITCH3 = 5;
+
+
+int brightness = 255;    // how bright the LED is
+int fadeAmount = 5;    // how many points to fade the LED by
+
+void setup() {
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(SWITCH1, INPUT);
+
+}
+
+void loop() {
+
+   switch1 = switch_1_pressed();
+   switch2 = switch_2_pressed();
+   switch3 = switch_3_pressed();
+
+  
+   //state_machine_run(switch1, switch2, switch3);
+    if(switch_1_pressed()){
+      sleep();
+    }
+
+
+    //run();
+   
+}
+
+
+/*
+void state_machine_run(switch1, switch2, switch3)
+{
+ switch(state)
+ {
+   case ON:
+     if(){
+       off();
+       state = OFF;
+     }
+     else if(){
+       run();
+       state = RUN;
+     }
+     else if(){
+       sleep();
+       state = SLEEP;
+     }
+     else if(){
+       diagnostic();
+       state = DIAGNOSTIC;
+     }
+     break;
+    case OFF:
+       if(){
+         on();
+         state = ON;
+       }
+       break;
+     case RUN:
+       if(){
+         on();
+         state = ON;
+       }
+       break;
+     case SLEEP:
+       if(){
+         on();
+         state = ON;
+       }
+     break;
+     case DIAGNOSTIC:
+       if(){
+         on();
+         state = ON;
+       }
+     break;
+ 
+ }
+}
+*/
+
+
+
+void on()
+{
+    //red led
+  
+    digitalWrite(RED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(100);                       // wait for a second
+    digitalWrite(RED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(100);
+}
+
+void off()
+{
+  //led off logic
+}
+
+void run()
+{
+    //green led
+    // set the brightness of pin 9:
+    analogWrite(GREEN_PIN, brightness);
+
+    // change the brightness for next time through the loop:
+    brightness = brightness - fadeAmount;
+
+    // reverse the direction of the fading at the ends of the fade:
+    if (brightness <= 0 ) {
+      for(int i = 0; i < 2; i++){
+        digitalWrite(GREEN_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+        delay(100);                       // wait for a second
+        digitalWrite(GREEN_PIN, LOW);    // turn the LED off by making the voltage LOW
+        delay(100);
+      }
+      brightness = 255;
+    }
+    delay(130);
+}
+
+void sleep()
+{
+      //led sleep logic
+      //blue led
+    // set the brightness of pin 9:
+    analogWrite(BLUE_PIN, brightness);
+
+    flash_blue_led(10);
+
+    // change the brightness for next time through the loop:
+    brightness = brightness - fadeAmount;
+
+    // reverse the direction of the fading at the ends of the fade:
+    if (brightness <= 0 ) {
+
+      }
+      brightness = 255;
+    }
+    delay(130);
+}
+
+void flash_blue_led(int flashes)
+{
+    flashes = 1000/flashes;
+    for (int i = 0; i<10;i++)
+    {
+      digitalWrite(BLUE_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+      delay(flashes);                       // wait for a second
+      digitalWrite(BLUE_PIN, LOW);    // turn the LED off by making the voltage LOW
+      delay(flashes);
+    }
+}
+
+ 
+void diagnostic()
+{
+      //led diagnostic logic
+}
+
+uint8_t read_IR()
+{
+    //gets sensor/ user input
+}
+
+bool switch_1_pressed()
+{
+  return digitalRead(SWITCH1);
+}
+bool switch_2_pressed()
+{
+  return digitalRead(SWITCH2);
+}
+bool switch_3_pressed()
+{
+  return digitalRead(SWITCH3);
+}
+
+
+
