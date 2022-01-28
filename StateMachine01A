@@ -1,30 +1,31 @@
 //state machine stuff
 enum State_enum {ON, OFF, RUN, SLEEP, DIAGNOSTIC};
 // enum Sensors_enum {NONE, SENSOR_RIGHT, SENSOR_LEFT, BOTH};
-//void state_machine_run(switch1, switch1, switch3);
+
 void on();
 void off();
-void run();
+void run1();
 void sleep();
 void diagnostic();
 uint8_t read_IR();
 uint8_t state = OFF;
 bool switch_1_pressed();
+bool switch_2_pressed();
+bool switch_3_pressed();
 bool switch1;
 bool switch2;
 bool switch3;
-
+void state_machine_run(bool switch1,bool switch2,bool switch3);
 
 //not state machine stuff
 int RED_PIN = 13;
-int GREEN_PIN = 12;
-int BLUE_PIN = 11;
+int GREEN_PIN = 10;
+int BLUE_PIN = 9;
 int SWITCH1 = 7;
 int SWITCH2 = 6;
 int SWITCH3 = 5;
 
 
-int brightness = 255;    // how bright the LED is
 int fadeAmount = 5;    // how many points to fade the LED by
 
 void setup() {
@@ -41,68 +42,61 @@ void loop() {
    switch3 = switch_3_pressed();
 
   
-   //state_machine_run(switch1, switch2, switch3);
-    if(switch_1_pressed()){
-      sleep();
-    }
-
-
-    //run();
-   
+   state_machine_run(switch1, switch2, switch3);
+ 
 }
 
 
-/*
-void state_machine_run(switch1, switch2, switch3)
+
+void state_machine_run(bool switch1,bool switch2,bool switch3)
 {
  switch(state)
  {
    case ON:
-     if(){
-       off();
-       state = OFF;
-     }
-     else if(){
-       run();
-       state = RUN;
-     }
-     else if(){
-       sleep();
-       state = SLEEP;
-     }
-     else if(){
-       diagnostic();
-       state = DIAGNOSTIC;
-     }
-     break;
+       if(!switch1 && !switch2 && switch3){
+         off();
+         state = OFF;
+       }
+       else if(!switch1 && switch2 && !switch3){
+         run1();
+         state = RUN;
+       }
+       else if(switch1 && !switch2 && !switch3){
+         sleep();
+         state = SLEEP;
+       }
+       else if(!switch1 && switch2 && switch3){
+         diagnostic();
+         state = DIAGNOSTIC;
+       }
+       break;
     case OFF:
-       if(){
-         on();
-         state = ON;
-       }
-       break;
+         if(!switch1 && !switch2 && !switch3){
+           on();
+           state = ON;
+         }
+         break;
      case RUN:
-       if(){
-         on();
-         state = ON;
-       }
-       break;
+         if(!switch1 && !switch2 && !switch3){
+           on();
+           state = ON;
+         }
+     break;
      case SLEEP:
-       if(){
-         on();
-         state = ON;
-       }
+         if(!switch1 && !switch2 && !switch3){
+           on();
+           state = ON;
+         }
      break;
      case DIAGNOSTIC:
-       if(){
-         on();
-         state = ON;
-       }
+         if(!switch1 && !switch2 && switch3){
+           on();
+           state = ON;
+         }
      break;
  
  }
 }
-*/
 
 
 
@@ -121,65 +115,78 @@ void off()
   //led off logic
 }
 
-void run()
+
+//green led
+void run1()
 {
-    //green led
-    // set the brightness of pin 9:
-    analogWrite(GREEN_PIN, brightness);
+    unsigned long button_time = 0;
+    unsigned long last_button_time = 0;
+    button_time = millis();
 
-    // change the brightness for next time through the loop:
-    brightness = brightness - fadeAmount;
-
-    // reverse the direction of the fading at the ends of the fade:
-    if (brightness <= 0 ) {
-      for(int i = 0; i < 2; i++){
-        digitalWrite(GREEN_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-        delay(100);                       // wait for a second
-        digitalWrite(GREEN_PIN, LOW);    // turn the LED off by making the voltage LOW
-        delay(100);
-      }
-      brightness = 255;
+    int brightness = analogRead(A1) / 4;
+    
+  
+    if(analogRead(A0) > 500){
+        for(int i = 0; i < 40; i++){
+          analogWrite(GREEN_PIN, brightness);   // turn the LED on (HIGH is the voltage level)
+          delay(50);                       // wait for a second
+          analogWrite(GREEN_PIN, 0);    // turn the LED off by making the voltage LOW
+          delay(50);
+        }
     }
-    delay(130);
+    else{
+        fade_led(6, GREEN_PIN);
+   
+        for(int i = 0; i < 2; i++){
+          analogWrite(GREEN_PIN, brightness);   // turn the LED on (HIGH is the voltage level)
+          delay(100);                       // wait for a second
+          analogWrite(GREEN_PIN, brightness);    // turn the LED off by making the voltage LOW
+          delay(100);
+        }   
+       
+      last_button_time = button_time;  
+       
+    }
 }
 
 void sleep()
 {
-      //led sleep logic
-      //blue led
-    // set the brightness of pin 9:
-    analogWrite(BLUE_PIN, brightness);
+     //led sleep logic
+    flash_led(3, BLUE_PIN);
 
-    flash_blue_led(10);
 
-    // change the brightness for next time through the loop:
-    brightness = brightness - fadeAmount;
-
-    // reverse the direction of the fading at the ends of the fade:
-    if (brightness <= 0 ) {
-
-      }
-      brightness = 255;
-    }
-    delay(130);
+    //FADE CODE
+    fade_led(6, BLUE_PIN);
 }
 
-void flash_blue_led(int flashes)
+void flash_led(int flashes, int LED)
 {
-    flashes = 1000/flashes;
-    for (int i = 0; i<10;i++)
+    int delaytime = 1000/flashes;
+    for (int i = 0; i<flashes;i++)
     {
-      digitalWrite(BLUE_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-      delay(flashes);                       // wait for a second
-      digitalWrite(BLUE_PIN, LOW);    // turn the LED off by making the voltage LOW
-      delay(flashes);
+      digitalWrite(LED, HIGH);   // turn the LED on (HIGH is the voltage level)
+      delay(delaytime);                       // wait for a second
+      digitalWrite(LED, LOW);    // turn the LED off by making the voltage LOW
+      delay(delaytime);
     }
 }
 
- 
+void fade_led(int fade_time, int LED)
+{
+      int brightness = 255;
+      while(brightness >= 0 ){
+       analogWrite(LED, brightness); 
+       brightness = brightness - 5;     
+       delay(fade_time * 20);
+     }
+}
+
+
+//led diagnostic logic
 void diagnostic()
 {
-      //led diagnostic logic
+      int problems = 4;
+      flash_led(problems, RED_PIN);
 }
 
 uint8_t read_IR()
@@ -199,6 +206,3 @@ bool switch_3_pressed()
 {
   return digitalRead(SWITCH3);
 }
-
-
-
