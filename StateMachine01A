@@ -1,6 +1,8 @@
 //state machine stuff
 enum State_enum {ON, OFF, RUN, SLEEP, DIAGNOSTIC};
 // enum Sensors_enum {NONE, SENSOR_RIGHT, SENSOR_LEFT, BOTH};
+void stateUpdate();
+
 
 void on();
 void off();
@@ -15,7 +17,7 @@ bool switch_3_pressed();
 bool switch1;
 bool switch2;
 bool switch3;
-void state_machine_run(bool switch1,bool switch2,bool switch3);
+void state_machine_run();
 
 //not state machine stuff
 int RED_PIN = 13;
@@ -25,31 +27,38 @@ int SWITCH1 = 7;
 int SWITCH2 = 6;
 int SWITCH3 = 5;
 
-
 int fadeAmount = 5;    // how many points to fade the LED by
+unsigned long currentMillis();
 
 void setup() {
   pinMode(RED_PIN, OUTPUT);
   pinMode(GREEN_PIN, OUTPUT);
-  pinMode(SWITCH1, INPUT);
+  pinMode(SWITCH1, INPUT_PULLUP);
+  pinMode(SWITCH2, INPUT_PULLUP);
+  pinMode(SWITCH3, INPUT_PULLUP);
+
+
+  attachInterrupt(digitalPinToInterrupt(SWITCH1), stateUpdate, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SWITCH2), stateUpdate, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SWITCH3), stateUpdate, CHANGE);
 
 }
 
 void loop() {
+  //put a millis variable here?
 
-   switch1 = switch_1_pressed();
-   switch2 = switch_2_pressed();
-   switch3 = switch_3_pressed();
-
-  
-   state_machine_run(switch1, switch2, switch3);
+   state_machine_run();
  
 }
 
 
 
-void state_machine_run(bool switch1,bool switch2,bool switch3)
+void state_machine_run()
 {
+   
+
+
+  
  switch(state)
  {
    case ON:
@@ -103,11 +112,17 @@ void state_machine_run(bool switch1,bool switch2,bool switch3)
 void on()
 {
     //red led
-  
     digitalWrite(RED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(100);                       // wait for a second
-    digitalWrite(RED_PIN, LOW);    // turn the LED off by making the voltage LOW
-    delay(100);
+
+    int delay_time = 100;
+    unsigned long time_now = millis();
+    while(delay_time > millis() - time_now){}
+         //delay(100);
+      digitalWrite(RED_PIN, LOW);    // turn the LED off by making the voltage LOW
+      //} //wait for 100 ms
+
+
+    
 }
 
 void off()
@@ -119,19 +134,20 @@ void off()
 //green led
 void run1()
 {
-    unsigned long button_time = 0;
-    unsigned long last_button_time = 0;
-    button_time = millis();
-
     int brightness = analogRead(A1) / 4;
+    
+    int delay_time = 100;
+    unsigned long time_now = millis();
     
   
     if(analogRead(A0) > 500){
-        for(int i = 0; i < 40; i++){
+        for(int i = 0; i < 10; i++){
           analogWrite(GREEN_PIN, brightness);   // turn the LED on (HIGH is the voltage level)
-          delay(50);                       // wait for a second
+          time_now = millis();
+          while(delay_time > millis() - time_now){}
           analogWrite(GREEN_PIN, 0);    // turn the LED off by making the voltage LOW
-          delay(50);
+          time_now = millis();
+          while(delay_time > millis() - time_now){}
         }
     }
     else{
@@ -139,12 +155,13 @@ void run1()
    
         for(int i = 0; i < 2; i++){
           analogWrite(GREEN_PIN, brightness);   // turn the LED on (HIGH is the voltage level)
-          delay(100);                       // wait for a second
+          time_now = millis();
+          while(delay_time > millis() - time_now){}                       // wait for a second
           analogWrite(GREEN_PIN, brightness);    // turn the LED off by making the voltage LOW
-          delay(100);
+          while(delay_time > millis() - time_now){}
+          time_now = millis();
         }   
-       
-      last_button_time = button_time;  
+ 
        
     }
 }
@@ -174,10 +191,14 @@ void flash_led(int flashes, int LED)
 void fade_led(int fade_time, int LED)
 {
       int brightness = 255;
+      int delay_time = 100;
+      unsigned long time_now = millis();
+      
       while(brightness >= 0 ){
        analogWrite(LED, brightness); 
-       brightness = brightness - 5;     
-       delay(fade_time * 20);
+       brightness = brightness - 5; 
+       time_now = millis();    
+       while(delay_time > millis() - time_now){}
      }
 }
 
@@ -206,3 +227,16 @@ bool switch_3_pressed()
 {
   return digitalRead(SWITCH3);
 }
+
+void stateUpdate(){
+   switch1 = switch_1_pressed();
+   switch2 = switch_2_pressed();
+   switch3 = switch_3_pressed();
+  
+  if(!switch1, !switch2, !switch3)state = ON;
+  if(!switch1, !switch2, switch3)state = OFF;
+  if(!switch1 && switch2 && !switch3)state = RUN;
+  if(switch1 && !switch2 && !switch3)state = SLEEP;
+  if(!switch1 && switch2 && switch3)state = DIAGNOSTIC;
+}
+
