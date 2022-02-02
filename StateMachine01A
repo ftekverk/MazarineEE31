@@ -10,7 +10,7 @@ void run1();
 void sleep();
 void diagnostic();
 uint8_t read_IR();
-uint8_t state = OFF;
+uint8_t state;
 bool switch_1_pressed();
 bool switch_2_pressed();
 bool switch_3_pressed();
@@ -41,24 +41,22 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(SWITCH1), stateUpdate, CHANGE);
   attachInterrupt(digitalPinToInterrupt(SWITCH2), stateUpdate, CHANGE);
   attachInterrupt(digitalPinToInterrupt(SWITCH3), stateUpdate, CHANGE);
-
 }
 
 void loop() {
   //put a millis variable here?
 
    state_machine_run();
- 
 }
 
 
 
 void state_machine_run()
 {
+   switch1 = switch_1_pressed();
+   switch2 = switch_2_pressed();
+   switch3 = switch_3_pressed();
    
-
-
-  
  switch(state)
  {
    case ON:
@@ -78,6 +76,10 @@ void state_machine_run()
          diagnostic();
          state = DIAGNOSTIC;
        }
+       else if(!switch1 && !switch2 && !switch3){
+           on();
+           state = ON;
+         }
        break;
     case OFF:
          if(!switch1 && !switch2 && !switch3){
@@ -113,17 +115,14 @@ void on()
 {
     //red led
     digitalWrite(RED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-
     int delay_time = 100;
     unsigned long time_now = millis();
     while(delay_time > millis() - time_now){}
-         //delay(100);
-      digitalWrite(RED_PIN, LOW);    // turn the LED off by making the voltage LOW
-      //} //wait for 100 ms
-
-
-    
+    digitalWrite(RED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    time_now = millis();
+    while(delay_time > millis() - time_now){}
 }
+
 
 void off()
 {
@@ -152,12 +151,12 @@ void run1()
     }
     else{
         fade_led(6, GREEN_PIN);
-   
+                                        
         for(int i = 0; i < 2; i++){
           analogWrite(GREEN_PIN, brightness);   // turn the LED on (HIGH is the voltage level)
           time_now = millis();
           while(delay_time > millis() - time_now){}                       // wait for a second
-          analogWrite(GREEN_PIN, brightness);    // turn the LED off by making the voltage LOW
+          analogWrite(GREEN_PIN, 0);    // turn the LED off by making the voltage LOW
           while(delay_time > millis() - time_now){}
           time_now = millis();
         }   
@@ -238,5 +237,6 @@ void stateUpdate(){
   if(!switch1 && switch2 && !switch3)state = RUN;
   if(switch1 && !switch2 && !switch3)state = SLEEP;
   if(!switch1 && switch2 && switch3)state = DIAGNOSTIC;
-}
 
+  //state_machine_run();
+}
