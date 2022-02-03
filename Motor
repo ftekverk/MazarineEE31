@@ -1,0 +1,54 @@
+
+
+int Q1PNP = 1;
+int Q2NPN = 2;
+int Q3PNP = 3;
+int Q4NPN = 4;
+
+//int SWITCH1;
+
+
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(Q1PNP, OUTPUT);
+  pinMode(Q2NPN, OUTPUT);
+  pinMode(Q3PNP, OUTPUT);
+  pinMode(Q4NPN, OUTPUT);
+}
+
+void loop() {
+
+  //if(switch_1_pressed()){
+    runMotorForward();
+  //}
+ //else{
+   // runMotorBackward();  
+  //}
+
+}
+
+
+bool switch_1_pressed()
+{
+  return digitalRead(SWITCH1);
+}
+
+void runMotorForward(){
+  digitalWrite(Q1PNP, HIGH);
+  digitalWrite(Q4NPN, HIGH);
+  delay(1000);
+  digitalWrite(Q1PNP, LOW);
+  digitalWrite(Q4NPN, LOW);
+  
+}
+
+
+void runMotorBackward(){
+  digitalWrite(Q3PNP, HIGH);
+  digitalWrite(Q4NPN, HIGH);
+  delay(1000);
+  digitalWrite(Q3PNP, LOW);
+  digitalWrite(Q4NPN, LOW);
+}
+
