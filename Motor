@@ -1,52 +1,128 @@
 
 
-int Q1PNP = 1;
-//int Q2NPN = 2;
-//int Q3PNP = 3;
-//int Q4NPN = 4;
+int q1 = 3;
+int q2 = 5;
+int q3 = 6;
+int q4 = 9;
 
-int SWITCH1;
-
+int analogSpeed = 125;
 
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode(Q1PNP, OUTPUT);
-
-  
-//  pinMode(Q2NPN, OUTPUT);
-//  pinMode(Q3PNP, OUTPUT);
-//  pinMode(Q4NPN, OUTPUT);
+  pinMode(q1, OUTPUT);
+  pinMode(q2, OUTPUT);
+  pinMode(q3, OUTPUT);
+  pinMode(q4, OUTPUT);
 }
+
 
 void loop() {
 
-  digitalWrite(Q1PNP, HIGH);
-  delay(2000);
-  digitalWrite(Q1PNP, LOW);
-  delay(2000);
-}
+  runMotorsForward();
+  delay(4000);
+  runMotorsBackward();
+  delay(4000);
+  pivot();
+  delay(4000);
+  turnCounterClockwise();
+  delay(4000);
+  turnClockwise();
+  delay(4000);
+  
 
-
-//bool switch_1_pressed()
-//{
-//  return digitalRead(SWITCH1);
-//}
-
-void runMotorForward(){
-  digitalWrite(Q1PNP, HIGH);
-//  digitalWrite(Q4NPN, HIGH);
-  delay(100);
-  digitalWrite(Q1PNP, LOW);
-//  digitalWrite(Q4NPN, LOW);
   
 }
 
 
-//void runMotorBackward(){
-//  digitalWrite(Q3PNP, HIGH);
-//  digitalWrite(Q4NPN, HIGH);
-//  delay(1000);
-//  digitalWrite(Q3PNP, LOW);
-//  digitalWrite(Q4NPN, LOW);
-//}
+
+void runMotorsForward(){
+    motorOneForward();
+    motorTwoForward();
+    delay(1000);
+    motorOneNeutral();
+    motorTwoNeutral();
+    delay(1000);
+}
+
+
+void runMotorsBackward(){
+    motorOneBackwards();
+    motorTwoBackwards();
+    delay(1000);
+    motorOneNeutral();
+    motorTwoNeutral();
+    delay(1000);
+}
+
+
+
+void turnClockwise(){
+      motorOneForward();
+      delay(1400);
+      motorOneNeutral();
+      delay(1000);
+}
+
+void turnCounterClockwise(){
+      motorTwoForward();
+      delay(1400);
+      motorOneNeutral();
+      delay(1000);
+}
+
+
+void pivot(){
+    motorOneForward();
+    motorTwoBackwards();
+    delay(1250);
+    motorOneNeutral();
+    motorTwoNeutral();
+    delay(1000);
+}
+
+
+
+
+
+//MOTOR EASY FUNCTIONS
+
+void motorOneForward(){
+     //drive motor 1 forward for 2 sec
+     analogWrite(q1, analogSpeed);
+     analogWrite(q2, 0);
+}
+
+void motorOneBackwards(){
+     //drive motor 1 forward for 2 sec
+     analogWrite(q1, 0);
+     analogWrite(q2, analogSpeed);
+}
+
+void motorOneNeutral(){
+     analogWrite(q1, 0);
+     analogWrite(q2, 0);
+}
+
+
+
+void motorTwoForward(){
+     analogWrite(q3, analogSpeed);
+     analogWrite(q4, 0);
+}
+
+
+void motorTwoBackwards(){
+     analogWrite(q3, 0);
+     analogWrite(q4, analogSpeed);
+}
+
+
+void motorTwoNeutral(){
+     analogWrite(q3, 0);
+     analogWrite(q4, 0);
+}
+
+
+
+
