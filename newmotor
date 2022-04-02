@@ -1,4 +1,3 @@
-
 //delay of 4 seconds
 //
 //  delay_time = 4000;
@@ -31,6 +30,7 @@ void setup() {
   pinMode(blueLEDPin, OUTPUT);
 
 //  attachInterrupt(digitalPinToInterrupt(SWITCH1), stateUpdate, CHANGE);
+digitalWrite(blueLEDPin, HIGH);
 }
 
 
@@ -40,9 +40,8 @@ void loop() {
   unsigned long time_now;
   int colorsensorValue;
 
-  digitalWrite(blueLEDPin, HIGH);
-
-  driveUntilBlueLine();
+  runMotorsForward();
+//  driveUntilBlueLine();
 
 //   if(redLEDOn){
 //      digitalWrite(redLEDPin, HIGH);
@@ -65,55 +64,7 @@ void loop() {
      Serial.print(colorsensorValue);
      Serial.print("\n");
 
-//  driveUntilBlueLine();
-//  followBlueLine();
 
-
-//  delay(1000);
-
-//  turnCounterClockwise();
-//  
-//  delay_time = 8000;
-//  time_now = millis();
-//  while(delay_time > millis() - time_now){} 
-//  
-//  veerRight();
-//
-//  delay_time = 4000;
-//  time_now = millis();
-//  while(delay_time > millis() - time_now){} 
-//
-//  veerLeft();
-//
-//  delay_time = 4000;
-//  time_now = millis();
-//  while(delay_time > millis() - time_now){} 
-
-
-//  runMotorsForward();
-//  delay_time = 4000;
-//  time_now = millis();
-//  while(delay_time > millis() - time_now){}  
-//
-//  runMotorsBackward();
-//  delay_time = 4000;
-//  time_now = millis();
-//  while(delay_time > millis() - time_now){} 
-//  
-//  pivot();
-//  delay_time = 4000;
-//  time_now = millis();
-//  while(delay_time > millis() - time_now){} 
-//  
-//  turnCounterClockwise();
-//  delay_time = 8000;
-//  time_now = millis();
-//  while(delay_time > millis() - time_now){} 
-//  
-//  turnClockwise();
-//  delay_time = 8000;
-//  time_now = millis();
-//  while(delay_time > millis() - time_now){} 
   
 }
 
@@ -129,7 +80,7 @@ void runMotorsForward(){
     motorOneForward();
     motorTwoForward();
     
-    delay_time = 1000;d
+    delay_time = 1000;
     time_now = millis();
     while(delay_time > millis() - time_now){} 
     
@@ -223,37 +174,25 @@ void driveUntilBlueLine(){
     int delay_time;
     unsigned long time_now;
 
-    int blueCutoff = 510;
-    int blackCutoff = 275;
-
     motorOneForward();
     motorTwoForward();
-    //drive across all colors until blue
-
-    //blue LED on
-    //red  290
-    //blue 355
-    //yellow 410
-    
 
     while(true){
-      //if we're in the range of blue
       int value = analogRead(colorValuePin);
-      if( value > 330 and value < 370){
-         //wait half a second 
-         delay_time = 100;
+
+      if( value > 225 and value < 310){
+         //wait
+         delay_time = 150;
          time_now = millis();
          while(delay_time > millis() - time_now){}
-       //measure again
-        value = analogRead(colorValuePin);
-        //if we still think we're in blue, stop
-        if( value > 330 and  value < 370){
+         //measure again
+         value = analogRead(colorValuePin);
+         //if we still think we're in blue, stop
+         if( value > 225 and  value < 310){
             motorsNeutral();
             break;
         }
-        
       }
-      
     }
     
     delay(3000);
