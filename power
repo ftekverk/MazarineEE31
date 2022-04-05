@@ -29,3 +29,42 @@ void powerDisplay{
   
   
 }
+
+int analog_read(uint8_t pin){
+  
+pin = digitalPinToAnalogInput(pin);
+//  if(pin > NUM_ANALOG_INPUTS) return NOT_A_PIN;
+  
+  /* Check if TWI is operating on double bonded pin (Master Enable is high 
+    in both Master and Slave mode for bus error detection, so this can 
+    indicate an active state for Wire) */
+//  if(isDoubleBondedActive(pin)) return 0;
+
+  uint8_t low, high;
+
+
+  /* Reference should be already set up */
+  /* Select channel */
+  ADC0.MUXPOS = (pin << ADC_MUXPOS_gp);
+
+  /* Start conversion */
+  ADC0.COMMAND = ADC_STCONV_bm;
+
+  /* Wait for result ready */
+  while(!(ADC0.INTFLAGS & ADC_RESRDY_bm));
+
+  /* Save state */
+  uint8_t status = SREG;
+  cli();
+
+  /* Read result */
+  low = ADC0.RESL;
+  high = ADC0.RESH;
+
+  /* Restore state */
+  SREG = status;
+
+
+  /* Combine two bytes */
+  return (high << 8) | low;
+}
