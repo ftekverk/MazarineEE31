@@ -2,12 +2,14 @@
 
 int sensorPin = 11;
 int IRLED = 12;
+int sensorPinA = A4;
 int sensorValue = 0;
 
 void setup() {
   Serial.begin(9600);
   pinMode(IRLED, OUTPUT);
   pinMode(sensorPin, INPUT);
+  pinMode(sensorPinA, INPUT);
 }
 
 
@@ -15,7 +17,7 @@ void loop() {
 
   digitalWrite(IRLED, HIGH);
   delay(1000);
-  sensorValue = analogRead(sensorPin);
+  sensorValue = analogRead(sensorPinA);
   Serial.print(sensorValue);
   Serial.print("\n");
   digitalWrite(IRLED, LOW);
@@ -23,6 +25,4 @@ void loop() {
   Serial.print(sensorValue);
   Serial.print("\n");
   
-}
-
 
