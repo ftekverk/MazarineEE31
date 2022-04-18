@@ -1,0 +1,63 @@
+int batteryVoltagePin = A1;
+int batteryIndicatorLED = 5;
+
+
+void setup() {
+  Serial.begin(9600);
+  // put your setup code here, to run once:
+
+}
+
+void loop(){
+  
+  console.log(analog_read_for_power(batteryVoltagePin));
+
+
+  
+}
+
+
+void batteryCheck(){
+   if(analog_read_for_power(A1) < 250){
+      digitalWrite(batteryIndicatorLED);
+   }
+
+  
+}
+
+
+//modified from of the source
+int analog_read_for_power(uint8_t pin)
+{
+  pin = digitalPinToAnalogInput(pin);
+
+  /* Check if TWI is operating on double bonded pin (Master Enable is high 
+    in both Master and Slave mode for bus error detection, so this can 
+    indicate an active state for Wire) */
+  //if(isDoubleBondedActive(pin)) return 0; //nothing seems to change when this is commented out but I dont know what it does
+
+  uint8_t low, high;
+  ADC0.MUXPOS = (pin << ADC_MUXPOS_gp);
+
+  /* Start conversion */
+  ADC0.COMMAND = ADC_STCONV_bm;
+
+  /* Wait for result ready */
+  while(!(ADC0.INTFLAGS & ADC_RESRDY_bm));
+
+  /* Save state */
+  uint8_t status = SREG;
+  cli(); //clears interrupts
+
+  /* Read result */
+  low = ADC0.RESL;
+  high = ADC0.RESH;
+
+  /* Restore state */
+  SREG = status;
+
+  /* Combine two bytes */
+  return (high << 8) | low;
+}
+
+
