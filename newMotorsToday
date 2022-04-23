@@ -8,7 +8,7 @@
 
 //Bot that follows the red LED
 bool bot1 = false;
-
+bool bot2 = true;
 
 //blue ON ranges:
   //blue:
@@ -59,8 +59,6 @@ void setup() {
   pinMode(blueLEDPin, OUTPUT);
 
 
-   digitalWrite(blueLEDPin, HIGH);
-   digitalWrite(redLEDPin, HIGH);
 //    pinMode( LED_BUILTIN, OUTPUT );
   //  attachInterrupt(digitalPinToInterrupt(SWITCH1), stateUpdate, CHANGE);
 
@@ -68,62 +66,79 @@ void setup() {
 
 
 void loop() {
-
-  int delay_time;
-  unsigned long time_now;
-  int colorsensorValue;
-
-     colorsensorValue = analogRead(colorValuePin);
-     Serial.print(colorsensorValue);
-     Serial.print("\n");
-
-//  turnCounterClockwise();
 //
-//  if(bot1){
-//    
-//    
-//    //drive until wall (collision)
+//    int delay_time;
+//    unsigned long time_now;
+//    int colorsensorValue;
 //
-//    //turn 180
+//    colorsensorValue = analogRead(colorValuePin);
+//    Serial.print(colorsensorValue);
+//    Serial.print("\n");
 //
-//    //drive until red line
+////  turnCounterClockwise();
 //
-//    //follow red
-//    //back up
-//    //90 degrees counterclockwise
-//    //drive until yellow
-//    //follow yellow until wall
-//    //turn counter clockwise
-//    //drive until the corner (hard code time)
-//    
-//  }
-//  else{
-////    digitalWrite(blueLEDPin, HIGH);
-//    //drive until wall (collision)
-//    driveUntilCollisionDiagonal();
-//    delay(1000);
-//    //turn 180
+  if(bot1){
+    digitalWrite(redLEDPin, HIGH);
+    //drive until wall (collision)
+    driveUntilCollisionDiagonal();
+    delay(1000);
+    //turn 180
+    turnClockwise();
+    //drive until red line
+//    driveUntilLine(redLEDON_RedThresholdLow, redLEDON_RedThresholdHigh);
+    //follow red
+    
+    //back up
+    //90 degrees counterclockwise
+    //drive until yellow
+    //follow yellow until wall
+    //turn counter clockwise
+    //drive until the corner (hard code time)
+    
+  }
+  else if(bot2){
+    digitalWrite(blueLEDPin, HIGH);
+    //drive until wall (collision)
+    driveUntilCollisionDiagonal();
+    delay(1000);
+    //turn 180
+    pivot180CounterCC();
 //    turnCounterClockwise();
-//    delay(1000);
-//    //drive until blue line
-//    driveUntilBlueLine(blueLEDON_BlueThresholdLow, blueLEDON_BlueThresholdHigh);
-//    //follow blue
-//    //back up
-//    //90 degrees clockwise
-//    //drive until yellow
-//    //follow yellow until wall
-//    //turn clockwise
-//    //drive until the corner (hard code time)
-//    
-//  }
-//
-////     colorsensorValue = analogRead(colorValuePin);
-////     Serial.print(colorsensorValue);
-////     Serial.print("\n");
+    delay(1000);
+    //drive until blue line
+    driveUntilLine(blueLEDON_BlueThresholdLow, blueLEDON_BlueThresholdHigh);
+    //follow blue
+      //turn
+      turnCounterClockwiseUntilBlue();
+      followBlueLineUntilPerpendicularCollision();
+    
+    //back up
+    runMotorsBackward();
+    //90 degrees Cclockwise
+    pivot90CounterC();
+    //drive until yellow
+    driveUntilLine(blueLEDON_YellowThresholdLow, blueLEDON_YellowThresholdHigh);
+    //follow yellow until wall
+    //turn clockwise
+    //drive until the corner (hard code time)
+    
+  }
+  //testing code
+  else{
+    digitalWrite(blueLEDPin, HIGH);
+    pivot90C();
+//      int colorsensorValue = analogRead(colorValuePin);
+//     Serial.print(colorsensorValue);
+//     Serial.print("\n");
+//    pivot180();
+//    delay(4000);
+//    followBlueLine();
+    
+  }
 
 
-  
 }
+
 
 void driveUntilCollisionDiagonal(){
      int delay_time;
@@ -147,7 +162,30 @@ void driveUntilCollisionDiagonal(){
 }
 
 
+void followBlueLineUntilPerpendicularCollision(){
+  
+  int delay_time;
+  unsigned long time_now;
+  int colorsensorValue;
+  
+  //left until blue line
+  
+  int blueCutoff = blueLEDON_BlueThresholdLow - 10;
 
+  //while not interrupt
+  while(analogRead(sensorPinA) < perpendicularThreshold + 50){
+
+    
+     rightMorethanLeft();
+     while(analogRead(colorValuePin) < blueCutoff){}
+     motorsNeutral();
+     veerLeft();
+  }
+  
+  delay(1000);
+  
+  
+}
 
 
 
@@ -155,7 +193,7 @@ void driveUntilCollisionDiagonal(){
 
 
 //Drive until a line (using time delay) and turn functions
-void driveUntilBlueLine(int ThresholdLow, int ThresholdHigh){
+void driveUntilLine(int ThresholdLow, int ThresholdHigh){
     int delay_time;
     unsigned long time_now;
 
@@ -200,24 +238,44 @@ void followBlueLine(){
   
   //left until blue line
   
-  int blueCutoff = (blueLEDON_BlueThresholdLow + blueLEDON_BlueThresholdHigh) /                                2;
+  int blueCutoff = blueLEDON_BlueThresholdLow - 10;
 
   //while not interrupt
   while(true){
      rightMorethanLeft();
-//     colorsensorValue = analogRead(colorValuePin);
-//     Serial.print(colorsensorValue);
-//     Serial.print("\n");
-     while(analogRead(colorValuePin) < blueCutoff){
-       Serial.print(colorsensorValue);
-     Serial.print("\n");
-     }
-     
+     while(analogRead(colorValuePin) < blueCutoff){}
      motorsNeutral();
-     veerRight();
+     veerLeft();
   }
 }
 
 
 
-// Colision values 
+//pivots off of blue, then onto blue again
+
+void turnCounterClockwiseUntilBlue(){
+  
+   int delay_time;
+   unsigned long time_now;
+      
+    motorOneForward();
+
+
+
+    //pivot onto black
+    int blueCutoff = blueLEDON_BlueThresholdLow - 10;
+
+    while(analogRead(colorValuePin) > blueLEDON_BlackThresholdHigh){}
+
+    //pivot onto blue
+    delay_time = 150;
+    time_now = millis();
+    while(analogRead(colorValuePin) < blueCutoff){}
+    motorsNeutral();
+    
+    
+    delay_time = 1000;
+    time_now = millis();
+    while(delay_time > millis() - time_now){}
+  
+}
