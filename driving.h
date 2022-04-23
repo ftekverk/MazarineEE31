@@ -93,7 +93,7 @@ void runMotorsBackward(){
     motorOneBackwards();
     motorTwoBackwards();
     
-    delay_time = 1000;
+    delay_time = 500;
     time_now = millis();
     while(delay_time > millis() - time_now){}
     
