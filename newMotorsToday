@@ -8,7 +8,7 @@
 
 //Bot that follows the red LED
 bool bot1 = false;
-bool bot2 = true;
+bool bot2 = false;
 
 //blue ON ranges:
   //blue:
@@ -18,8 +18,8 @@ int blueLEDON_BlueThresholdLow = 330;
 int blueLEDON_BlueThresholdHigh = 350;
 int blueLEDON_RedThresholdLow = 236;
 int blueLEDON_RedThresholdHigh = 250;
-int blueLEDON_YellowThresholdLow = 360;
-int blueLEDON_YellowThresholdHigh = 380;
+int blueLEDON_YellowThresholdLow = 485;
+int blueLEDON_YellowThresholdHigh = 495;
 int blueLEDON_BlackThresholdLow = 160;
 int blueLEDON_BlackThresholdHigh = 173;
 
@@ -40,7 +40,7 @@ int blueLEDON_BlackThresholdHigh = 173;
 //Color Detection
 int redLEDPin = 7;
 int blueLEDPin = 4;
-int colorValuePin = A5;
+int colorValuePin = A1;
 
 //Collision Detection
 int sensorPinA = A4;
@@ -109,9 +109,9 @@ void loop() {
     driveUntilLine(blueLEDON_BlueThresholdLow, blueLEDON_BlueThresholdHigh);
     //follow blue
       //turn
-      turnCounterClockwiseUntilBlue();
+      turnCounterClockwiseUntilColor(blueLEDON_BlueThresholdLow, blueLEDON_BlueThresholdHigh);
+      //follow yellow until collision
       followBlueLineUntilPerpendicularCollision();
-    
     //back up
     runMotorsBackward();
     //90 degrees Cclockwise
@@ -119,6 +119,10 @@ void loop() {
     //drive until yellow
     driveUntilLine(blueLEDON_YellowThresholdLow, blueLEDON_YellowThresholdHigh);
     //follow yellow until wall
+        //turn
+
+        //d
+    
     //turn clockwise
     //drive until the corner (hard code time)
     
@@ -126,13 +130,10 @@ void loop() {
   //testing code
   else{
     digitalWrite(blueLEDPin, HIGH);
-    pivot90C();
-//      int colorsensorValue = analogRead(colorValuePin);
-//     Serial.print(colorsensorValue);
-//     Serial.print("\n");
-//    pivot180();
-//    delay(4000);
-//    followBlueLine();
+      int colorsensorValue = analogRead(colorValuePin);
+     Serial.print(colorsensorValue);
+     Serial.print("\n");
+    delay(500);
     
   }
 
@@ -210,7 +211,7 @@ void driveUntilLine(int ThresholdLow, int ThresholdHigh){
          while(delay_time > millis() - time_now){}
          //measure again
          value = analogRead(colorValuePin);
-         //if we still think we're in blue, stop
+         //if we still think we're in the color, stop
          if( value > ThresholdLow - 5 and  value < ThresholdHigh + 5){
             motorsNeutral();
             break;
@@ -251,31 +252,29 @@ void followBlueLine(){
 
 
 
-//pivots off of blue, then onto blue again
-
-void turnCounterClockwiseUntilBlue(){
-  
+//pivots off of a color, then onto the color again
+void turnCounterClockwiseUntilColor(int ThresholdLow, int ThresholdHigh){
    int delay_time;
    unsigned long time_now;
       
     motorOneForward();
-
-
-
     //pivot onto black
-    int blueCutoff = blueLEDON_BlueThresholdLow - 10;
+    int colorCutoff = ThresholdLow - 10;
 
-    while(analogRead(colorValuePin) > blueLEDON_BlackThresholdHigh){}
+    while(analogRead(colorValuePin) > ThresholdHigh){}
 
     //pivot onto blue
     delay_time = 150;
     time_now = millis();
-    while(analogRead(colorValuePin) < blueCutoff){}
+    while(analogRead(colorValuePin) < colorCutoff){}
     motorsNeutral();
-    
     
     delay_time = 1000;
     time_now = millis();
     while(delay_time > millis() - time_now){}
-  
 }
+
+
+
+
+
