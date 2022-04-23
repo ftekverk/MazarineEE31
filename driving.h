@@ -61,6 +61,7 @@ void forward(){
 }
 
 
+
 void motorsNeutral(){
   motorOneNeutral();
   motorTwoNeutral();
@@ -140,7 +141,7 @@ void turnClockwise(){
 }
 
 
-void pivot(){
+void pivot180CounterCC(){
     int delay_time;
     unsigned long time_now;
       
@@ -161,8 +162,73 @@ void pivot(){
 }
 
 
+void pivot90CounterC(){
+    int delay_time;
+    unsigned long time_now;
+      
+    motorOneForward();
+    motorTwoBackwards();
 
-void leftMorethanRight(){
+    delay_time = 625;
+    time_now = millis();
+    while(delay_time > millis() - time_now){}
+    
+    motorsNeutral();
+
+    
+    delay_time = 1000;
+    time_now = millis();
+    while(delay_time > millis() - time_now){}
+}
+
+
+
+void pivot90C(){
+    int delay_time;
+    unsigned long time_now;
+      
+    motorOneBackwards();
+    motorTwoForward();
+
+    delay_time = 625;
+    time_now = millis();
+    while(delay_time > millis() - time_now){}
+    
+    motorsNeutral();
+
+    
+    delay_time = 1000;
+    time_now = millis();
+    while(delay_time > millis() - time_now){}
+}
+
+
+
+
+void shortPivot(){
+    int delay_time;
+    unsigned long time_now;
+      
+    motorOneForward();
+    motorTwoBackwards();
+
+    delay_time = 650;
+    time_now = millis();
+    while(delay_time > millis() - time_now){}
+
+    
+    motorsNeutral();
+
+    
+    delay_time = 1000;
+    time_now = millis();
+    while(delay_time > millis() - time_now){}
+}
+
+
+
+
+void rightMorethanLeft(){
     int motorDifference = 300;
 
     //drive left motor a little faster
@@ -174,7 +240,7 @@ void leftMorethanRight(){
 }
 
 
-void rightMorethanLeft(){
+void leftMorethanRight(){
     int motorDifference = 300;
 
     analogWrite(q1, analogSpeed);
@@ -187,8 +253,7 @@ void rightMorethanLeft(){
 
 
 
-
-void veerRight(){
+void veerLeft(){
     int delay_time;
     unsigned long time_now;
 
@@ -202,7 +267,7 @@ void veerRight(){
     motorsNeutral();
 }
 
-void veerLeft(){
+void veerRight(){
     int delay_time;
     unsigned long time_now;
 
